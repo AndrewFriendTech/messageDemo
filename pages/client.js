@@ -1,26 +1,70 @@
 
+
 window.onload=function(){
-	document.getElementById("msg-send").addEventListener('click',makeRequest);
-	setInterval(makeRequest,250);
+	document.getElementById("msg-send").addEventListener('click',postMessage);
+	//setInterval(makeRequest,1000);
   }
 
 
-var request;
-
-function makeRequest()
+function pollMessages()
 {
-	console.log("made");
-	request = new XMLHttpRequest();
-	request.onreadystatechange = function()
+	var xhr = new XMLHttpRequest()
+
+	xhr.onreadystatechange = function()
 	{
-		if(request.readyState == 4 && request.status == 200)
+		if(xhr.readyState == 4 && xhr.status == 200)
 		{
-			document.getElementById('msg-box').innerHTML = request.responseText;
-			//console.log(request);
+			populateMessageBox(JSON.parse(xhr.response));		
+		}
+	
+	
+	}
+	
+	xhr.open('POST','poll-messages');
+	xhr.send();
+
+}
+
+function populateMessageBox(messages)
+{
+	var content = "";
+	messages.forEach(element => {
+		console.log(element.body);
+		console.log(Date(element.date));
+		content +=
+		`<div id = "msg">
+			<div id = "msg-body">${element.body}</div>
+			<dic id = "msg-time">${Date(element.date)}</div>
+		</div>`;
+	});
+	
+	document.getElementById('msg-box').innerHTML  = content;
+
+	
+
+}
+
+
+
+function postMessage()
+{
+	var msg;
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function()
+	{
+		if(xhr.readyState == 4 && xhr.status == 200)
+		{
+			console.log("send succsessfull");
+
 		}
 	};
-	request.open('POST', 'post-message');
-    request.send();
-
+	document.getElementById('msg-box').innerHTML = xhr.responseText;
+	body = document.getElementById("msg-body").value;
+	msg = { body: body, date: (new Date()).getTime() };
+	xhr.open('POST', 'post-message');
+	xhr.setRequestHeader("Content-Type", "application/json");
+	console.log(msg);
+    xhr.send(JSON.stringify(msg));
+	
 }
 
