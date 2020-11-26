@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var morgan = require('morgan');
 
 var app = express();
-var port = 8000;
+var port = 80;
 
 var messages = [];
 var prevMessages = messages.length;
@@ -22,9 +22,11 @@ app.get('/', (req,res) => {
 	res.sendFile(__dirname + "/pages/index.html");
 })
 
+var i = 0;
+
 app.post('/post-message', (req,res) =>  {
 
-		res.send(req.body);
+		res.send(`<h1>${i++}</h1>`);
 });
 
 app.listen(port, () => {
