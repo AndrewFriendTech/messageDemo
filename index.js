@@ -1,5 +1,4 @@
 var express = require('express');
-var bodyParser = require('body-parser');
 var morgan = require('morgan');
 
 var app = express();
@@ -7,6 +6,7 @@ var port = 80;
 
 var messages = [];
 var prevMessages = messages.length;
+var currentId = 0;
 
 //app.use(morgan('combined'));
 
@@ -24,14 +24,17 @@ app.get('/', (req,res) => {
 	res.sendFile(__dirname + "/pages/index.html");
 })
 
-app.post('/poll-messages',(req,res) =>
+app.get('/poll-messages',(req,res) =>
 {
+	console.log(messages)
+	res.set('Content-Type', 'text/json');
 	res.send(messages);
 })
 
 app.post('/post-message', (req,res) =>  {
 
-		messages.push(req.body);
+		var msg = req.body;
+		messages.push();
 		console.log(messages);
 		res.send();
 });

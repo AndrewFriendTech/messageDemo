@@ -2,7 +2,7 @@
 
 window.onload=function(){
 	document.getElementById("msg-send").addEventListener('click',postMessage);
-	//setInterval(makeRequest,1000);
+	setInterval(pollMessagesFetch,1000);
   }
 
 
@@ -25,26 +25,80 @@ function pollMessages()
 
 }
 
+async function pollMessagesFetch()
+{
+	fetch('poll-messages').then(res => res.json()).then(res => populateMessageBox(res));
+	// req = await fetch('poll-messages');
+	// string = await req.json();
+	// console.log(string);
+}
+
 function populateMessageBox(messages)
 {
 	var content = "";
 	messages.forEach(element => {
-		console.log(element.body);
-		console.log(Date(element.date));
 		content +=
-		`<div id = "msg">
-			<div id = "msg-body">${element.body}</div>
-			<dic id = "msg-time">${Date(element.date)}</div>
+		`<div class = "msg">
+			<div class = "msg-body">${element.body}</div>
+			<dic class = "msg-time">${generarteDateString(element.time)}</div>
 		</div>`;
 	});
 	
 	document.getElementById('msg-box').innerHTML  = content;
+}
 
-	
+function generarteDateString(time)
+{
+	var string = "";
+	var currentDate = new Date();
+	var inputDate = new Date(time);
+	const milsInADay = 86_400_000;
+	 
+	if ((currentDate - inputDate) /milsInADay > 7)
+	{
+		string = currentDate.getDate() + " " + currentDate.getHours() +":" + currentDate.getMinutes();
+	}
+	if ((currentDate - inputDate )/milsInADay > 1 && (currentDate - inputDate) /milsInADay < 7  )
+	{
+	    string = toDay(currentDate.getDay()) + " " + currentDate.getHours() +":" + currentDate.getMinutes();
+	}
+	else
+	{
+		string = currentDate.getHours() +":" + currentDate.getMinutes();
+	}
+
+	return string;
 
 }
 
-
+function toDay(number)
+{
+	var string;
+	switch(number)
+	{
+		case 0:
+			string = "Sunday";
+			break;
+		case 1:
+			string = "Monday";
+			break;
+		case 2:
+			string = "Tuesday";
+		case 3:
+			string = "Wednesday"
+			break;
+		case 4:
+			string = "Thursday"
+			break;
+		case 5:
+			string = "Friday"
+			break;
+		case 6:
+			string = "Saturday"
+			break;
+	}
+	return string;
+}
 
 function postMessage()
 {
