@@ -2,28 +2,28 @@
 
 window.onload=function(){
 	document.getElementById("msg-send").addEventListener('click',postMessage);
-	setInterval(pollMessagesFetch,1000);
+	setInterval(pollMessages,1000);
   }
 
 
-function pollMessages()
-{
-	var xhr = new XMLHttpRequest()
+// function pollMessages()
+// {
+// 	var xhr = new XMLHttpRequest()
 
-	xhr.onreadystatechange = function()
-	{
-		if(xhr.readyState == 4 && xhr.status == 200)
-		{
-			populateMessageBox(JSON.parse(xhr.response));		
-		}
+// 	xhr.onreadystatechange = function()
+// 	{
+// 		if(xhr.readyState == 4 && xhr.status == 200)
+// 		{
+// 			populateMessageBox(JSON.parse(xhr.response));		
+// 		}
 	
 	
-	}
+// 	}
 	
-	xhr.open('POST','poll-messages');
-	xhr.send();
+// 	xhr.open('POST','poll-messages');
+// 	xhr.send();
 
-}
+// }
 
 async function pollMessagesFetch()
 {
@@ -33,6 +33,36 @@ async function pollMessagesFetch()
 	// console.log(string);
 }
 
+var currentMessage = -1;//means not initalized with any messages yet
+
+function pollMessages()
+{
+	fetch('poll-messages',
+		{
+			method:'POST',
+			headers:{'content-type':'application/json'},
+			body: JSON.stringify(
+				{from: currentMessage}
+			)
+		
+	}).then(response => response.json())
+	.then(response =>
+		{
+			if(response.length > 0)
+			{
+			currentMessage = response[response.length-1].id;
+			console.log(response);
+			console.log(currentMessage);
+			populateMessageBox(response);
+			}
+			else
+			{
+				console.log("no new messages");
+			}
+		}
+		);
+}
+
 function populateMessageBox(messages)
 {
 	var content = "";
@@ -40,11 +70,12 @@ function populateMessageBox(messages)
 		content +=
 		`<div class = "msg">
 			<div class = "msg-body">${element.body}</div>
-			<dic class = "msg-time">${generarteDateString(element.time)}</div>
+			<div class = "msg-time">${generarteDateString(element.time)}</div>
 		</div>`;
 	});
 	
-	document.getElementById('msg-box').innerHTML  = content;
+	document.getElementById('msg-box').insertAdjacentHTML('beforeend',content);
+	 content;
 }
 
 function generarteDateString(time)
@@ -112,7 +143,6 @@ function postMessage()
 
 		}
 	};
-	document.getElementById('msg-box').innerHTML = xhr.responseText;
 	body = document.getElementById("msg-body").value;
 	msg = { body: body, date: (new Date()).getTime() };
 	xhr.open('POST', 'post-message');
